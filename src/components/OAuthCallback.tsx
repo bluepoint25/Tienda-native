@@ -1,54 +1,50 @@
 import { useEffect, useState } from "react";
 import { authService } from "../services/authService";
-import { useNavigate } from "react-router-dom";
 
 function OAuthCallback() {
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Procesar el código de autorización
         const user = await authService.processCallback();
 
         if (user && user.isSignedIn) {
-          // Limpiar la URL y redirigir al home
-          window.history.replaceState({}, document.title, window.location.pathname);
-          navigate("/");
+          window.history.replaceState({}, document.title, "/");
+          window.location.href = "/";
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Error al procesar login";
         setError(errorMessage);
+        setLoading(false);
         console.error("OAuth callback error:", err);
       }
     };
 
     handleCallback();
-  }, [navigate]);
+  }, []);
 
   if (error) {
     return (
-      <div className="login-container">
-        <div className="login-box">
-          <h1>❌ Error en el login</h1>
-          <p>{error}</p>
-          <button onClick={() => window.location.href = "/"} className="login-button">
-            Volver al inicio
-          </button>
-        </div>
+      <div style={{ textAlign: "center", padding: "50px" }}>
+        <h1>❌ Error en el login</h1>
+        <p>{error}</p>
+        <button onClick={() => window.location.href = "/"}>Volver al inicio</button>
       </div>
     );
   }
 
-  return (
-    <div className="login-container">
-      <div className="login-box">
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}>
         <h1>⏳ Procesando login...</h1>
         <p>Por favor espera mientras se completa la autenticación.</p>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 }
 
 export default OAuthCallback;
