@@ -24,14 +24,6 @@ function App() {
     }
   }, []);
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    const user = authService.getCurrentUser();
-    if (user) {
-      setUsername(user.username);
-    }
-  };
-
   const handleLogout = () => {
     authService.logout();
     setIsLoggedIn(false);
