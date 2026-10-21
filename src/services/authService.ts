@@ -32,7 +32,7 @@ class AuthService {
     const params = new URLSearchParams({
       client_id: cognitoConfig.clientId,
       response_type: "code",
-      scope: "openid email profile",
+      scope: "openid",
       redirect_uri: cognitoConfig.redirectUri,
       state: state,
     });
