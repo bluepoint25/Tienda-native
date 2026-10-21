@@ -5,13 +5,14 @@ const domain = import.meta.env.VITE_COGNITO_DOMAIN || "tienda-native-92583091321
 
 // Construir endpoints dinámicamente
 const authEndpoint = `https://${domain}.auth.${region}.amazoncognito.com`;
+const redirectUri = window.location.origin;
 
 export const cognitoConfig = {
   userPoolId,
   clientId,
   region,
   domain,
-  redirectUri: window.location.origin,
+  redirectUri,
   // OAuth2 endpoints
   authorizationEndpoint: `${authEndpoint}/oauth2/authorize`,
   tokenEndpoint: `${authEndpoint}/oauth2/token`,

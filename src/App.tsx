@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import Login from "./components/Login";
+import OAuthCallback from "./components/OAuthCallback";
 import ProductList from "./components/ProductList";
 import ProductForm from "./components/ProductForm";
 import { authService } from "./services/authService";
@@ -13,6 +14,15 @@ function App() {
   const [username, setUsername] = useState(
     authService.getCurrentUser()?.username || ""
   );
+  const [isCallback, setIsCallback] = useState(false);
+
+  useEffect(() => {
+    // Verificar si estamos procesando un callback de OAuth
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("code")) {
+      setIsCallback(true);
+    }
+  }, []);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
@@ -29,8 +39,14 @@ function App() {
     setActiveTab("list");
   };
 
+  // Procesar callback de OAuth
+  if (isCallback) {
+    return <OAuthCallback />;
+  }
+
+  // Si no está logueado, mostrar login
   if (!isLoggedIn) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return <Login />;
   }
 
   return (

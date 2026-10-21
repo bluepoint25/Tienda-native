@@ -20,14 +20,45 @@ interface TokenResponse {
 }
 
 class AuthService {
-  async login(email: string, password: string): Promise<AuthUser> {
+  // Generar estado random para seguridad CSRF
+  private generateState(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  login(): void {
+    const state = this.generateState();
+    localStorage.setItem("oauth_state", state);
+
+    const params = new URLSearchParams({
+      client_id: cognitoConfig.clientId,
+      response_type: "code",
+      scope: "openid email profile",
+      redirect_uri: cognitoConfig.redirectUri,
+      state: state,
+    });
+
+    // Redirigir a Cognito para que el usuario se loguee
+    window.location.href = `${cognitoConfig.authorizationEndpoint}?${params.toString()}`;
+  }
+
+  // Procesar el callback de Cognito (después de que el usuario se loguee)
+  async processCallback(): Promise<AuthUser | null> {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const state = params.get("state");
+    const storedState = localStorage.getItem("oauth_state");
+
+    if (!code || state !== storedState) {
+      throw new Error("Invalid state or missing code");
+    }
+
     try {
-      const params = new URLSearchParams({
-        grant_type: "password",
+      // Intercambiar código por tokens
+      const tokenParams = new URLSearchParams({
+        grant_type: "authorization_code",
         client_id: cognitoConfig.clientId,
-        username: email,
-        password: password,
-        scope: "openid email profile",
+        code: code,
+        redirect_uri: cognitoConfig.redirectUri,
       });
 
       const response = await fetch(cognitoConfig.tokenEndpoint, {
@@ -35,30 +66,32 @@ class AuthService {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: params.toString(),
+        body: tokenParams.toString(),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(
-          error.error_description || error.error || "Login failed"
-        );
+        throw new Error(error.error_description || error.error || "Login failed");
       }
 
       const data = (await response.json()) as TokenResponse;
 
+      // Guardar tokens
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("id_token", data.id_token);
       if (data.refresh_token) {
         localStorage.setItem("refresh_token", data.refresh_token);
       }
-      localStorage.setItem("username", email);
       localStorage.setItem("token_expires_at",
         (Date.now() + data.expires_in * 1000).toString()
       );
+      localStorage.removeItem("oauth_state");
+
+      // Decodificar el ID token para obtener el email
+      const idTokenPayload = JSON.parse(atob(data.id_token.split(".")[1]));
 
       return {
-        username: email,
+        username: idTokenPayload.email,
         isSignedIn: true,
         tokens: {
           accessToken: data.access_token,
