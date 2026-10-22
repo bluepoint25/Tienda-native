@@ -20,16 +20,6 @@ function Login() {
           <button onClick={handleLogin} className="login-button">
             Ingresar con Cognito
           </button>
-
-          <div className="credentials-hint">
-            <p>
-              <strong>Usuario de prueba:</strong>
-            </p>
-            <p className="help-text">
-              Email: test@tiendanative.com<br/>
-              Contraseña: TempPass123!@#
-            </p>
-          </div>
         </div>
       </div>
     </div>
