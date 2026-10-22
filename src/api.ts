@@ -75,8 +75,24 @@ export interface EventosResponse {
   registros: RegistroEvento[];
 }
 
+export interface EstadoCola {
+  nombre: string;
+  mensajes: number;
+  consumidores: number;
+}
+
+export interface EstadoListener {
+  id: string;
+  activo: boolean;
+}
+
 export const eventAPI = {
   getAll: () => api.get<EventosResponse>("/api/v1/eventos"),
+  getColas: () => api.get<EstadoCola[]>("/api/v1/admin/rabbit/colas"),
+  getListeners: () => api.get<EstadoListener[]>("/api/v1/admin/rabbit/listeners"),
+  controlarListener: (id: string, accion: "iniciar" | "detener") =>
+    api.post<EstadoListener>(`/api/v1/admin/rabbit/listeners/${id}/${accion}`),
+  purgarCola: (nombre: string) => api.post(`/api/v1/admin/rabbit/colas/${nombre}/purgar`),
 };
 
 export default api;

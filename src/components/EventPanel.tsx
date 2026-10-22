@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import type { EventosResponse, TipoEvento } from "../api";
+import { useCallback, useEffect, useState } from "react";
+import type { EstadoCola, EstadoListener, EventosResponse, TipoEvento } from "../api";
 import { eventAPI, getErrorMessage } from "../api";
 import "./EventPanel.css";
 
@@ -14,22 +14,38 @@ const ETIQUETAS: Record<TipoEvento, string> = {
 
 function EventPanel() {
   const [data, setData] = useState<EventosResponse | null>(null);
+  const [colas, setColas] = useState<EstadoCola[]>([]);
+  const [listeners, setListeners] = useState<EstadoListener[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [accionError, setAccionError] = useState<string | null>(null);
+
+  const cargar = useCallback(async () => {
+    try {
+      const [ev, cs, ls] = await Promise.all([eventAPI.getAll(), eventAPI.getColas(), eventAPI.getListeners()]);
+      setData(ev.data);
+      setColas(cs.data);
+      setListeners(ls.data);
+      setError(null);
+    } catch (err) {
+      setError(getErrorMessage(err, "Error al cargar eventos"));
+    }
+  }, []);
 
   useEffect(() => {
-    const cargar = () =>
-      eventAPI
-        .getAll()
-        .then((r) => {
-          setData(r.data);
-          setError(null);
-        })
-        .catch((err) => setError(getErrorMessage(err, "Error al cargar eventos")));
-
     cargar();
     const id = setInterval(cargar, INTERVALO_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [cargar]);
+
+  const ejecutar = async (accion: () => Promise<unknown>) => {
+    try {
+      setAccionError(null);
+      await accion();
+      await cargar();
+    } catch (err) {
+      setAccionError(getErrorMessage(err, "No se pudo ejecutar la acción"));
+    }
+  };
 
   return (
     <div className="event-panel">
@@ -44,6 +60,53 @@ function EventPanel() {
           {error}
           <br />
           <small>El panel funciona con el backend local (RabbitMQ no está desplegado en AWS).</small>
+        </div>
+      )}
+      {accionError && <div className="event-error">{accionError}</div>}
+
+      {colas.length > 0 && (
+        <div className="event-section">
+          <h3>Colas y consumidores</h3>
+          <table className="event-table">
+            <thead>
+              <tr>
+                <th>Cola</th>
+                <th>Mensajes en espera</th>
+                <th>Consumidores</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {colas.map((c) => (
+                <tr key={c.nombre}>
+                  <td>{c.nombre}</td>
+                  <td className={c.mensajes > 0 ? "event-pendientes" : ""}>{c.mensajes}</td>
+                  <td>{c.consumidores}</td>
+                  <td>
+                    <button className="event-btn" onClick={() => ejecutar(() => eventAPI.purgarCola(c.nombre))}>
+                      Purgar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="event-listeners">
+            {listeners.map((l) => (
+              <div key={l.id} className={`event-listener ${l.activo ? "activo" : "detenido"}`}>
+                <span>
+                  {l.activo ? "🟢" : "🔴"} <strong>{l.id}</strong>
+                </span>
+                <button
+                  className="event-btn"
+                  onClick={() => ejecutar(() => eventAPI.controlarListener(l.id, l.activo ? "detener" : "iniciar"))}
+                >
+                  {l.activo ? "Detener" : "Iniciar"}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

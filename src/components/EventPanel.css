@@ -16,6 +16,69 @@
   margin-bottom: 1rem;
 }
 
+.event-section {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+}
+
+.event-section h3 {
+  margin: 0 0 0.75rem;
+}
+
+.event-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.event-table th,
+.event-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.event-pendientes {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.event-listeners {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.event-listener {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  background: #f3f4f6;
+}
+
+.event-listener.detenido {
+  background: #fde8e8;
+}
+
+.event-btn {
+  padding: 0.3rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  background: #4b5563;
+  color: white;
+  cursor: pointer;
+}
+
+.event-btn:hover {
+  background: #1f2937;
+}
+
 .event-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
