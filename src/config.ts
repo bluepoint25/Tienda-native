@@ -19,5 +19,5 @@ export const cognitoConfig = {
 };
 
 export const apiConfig = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || "https://8a0b1nfy7i.execute-api.us-east-1.amazonaws.com/dev",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
 };
