@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Product } from "../api";
-import { productAPI } from "../api";
+import { productAPI, getErrorMessage } from "../api";
 import "./ProductList.css";
 
 function ProductList() {
@@ -19,8 +19,7 @@ function ProductList() {
       const response = await productAPI.getAll();
       setProducts(response.data);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Error al cargar productos";
-      setError(errorMessage);
+      setError(getErrorMessage(err, "Error al cargar productos"));
     } finally {
       setLoading(false);
     }
@@ -34,8 +33,7 @@ function ProductList() {
       await productAPI.delete(id);
       setProducts(products.filter((p) => p.id !== id));
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Error al eliminar producto";
-      setError(errorMessage);
+      setError(getErrorMessage(err, "Error al eliminar producto"));
     }
   };
 

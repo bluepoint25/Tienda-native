@@ -32,7 +32,7 @@ class AuthService {
     const params = new URLSearchParams({
       client_id: cognitoConfig.clientId,
       response_type: "code",
-      scope: "openid",
+      scope: "openid email profile",
       redirect_uri: cognitoConfig.redirectUri,
       state: state,
     });
@@ -87,11 +87,12 @@ class AuthService {
       );
       localStorage.removeItem("oauth_state");
 
-      // Decodificar el ID token para obtener el email
-      const idTokenPayload = JSON.parse(atob(data.id_token.split(".")[1]));
+      const idTokenPayload = JSON.parse(atob(data.id_token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+      const username = idTokenPayload.email || idTokenPayload["cognito:username"];
+      localStorage.setItem("username", username);
 
       return {
-        username: idTokenPayload.email,
+        username,
         isSignedIn: true,
         tokens: {
           accessToken: data.access_token,

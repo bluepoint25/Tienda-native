@@ -1,6 +1,15 @@
 import axios from "axios";
 import { apiConfig } from "./config";
 
+export function getErrorMessage(err: unknown, fallback: string): string {
+  if (axios.isAxiosError(err)) {
+    if (!err.response) return `No se pudo conectar con el API (${apiConfig.baseURL})`;
+    const data = err.response.data as { message?: string } | undefined;
+    return `${err.response.status}: ${data?.message || err.message}`;
+  }
+  return err instanceof Error ? err.message : fallback;
+}
+
 // Crear instancia de axios
 const api = axios.create({
   baseURL: apiConfig.baseURL,

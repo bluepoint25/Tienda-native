@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./App.css";
 import Login from "./components/Login";
 import OAuthCallback from "./components/OAuthCallback";
@@ -14,15 +14,8 @@ function App() {
   const [username, setUsername] = useState(
     authService.getCurrentUser()?.username || ""
   );
-  const [isCallback, setIsCallback] = useState(false);
-
-  useEffect(() => {
-    // Verificar si estamos procesando un callback de OAuth
-    const params = new URLSearchParams(window.location.search);
-    if (params.has("code")) {
-      setIsCallback(true);
-    }
-  }, []);
+  const params = new URLSearchParams(window.location.search);
+  const isCallback = params.has("code") || params.has("error");
 
   const handleLogout = () => {
     authService.logout();

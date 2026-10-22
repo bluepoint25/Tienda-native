@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Product } from "../api";
-import { productAPI } from "../api";
+import { productAPI, getErrorMessage } from "../api";
 import "./ProductForm.css";
 
 interface ProductFormProps {
@@ -64,8 +64,7 @@ function ProductForm({ onSuccess }: ProductFormProps) {
         onSuccess();
       }, 1500);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Error al crear producto";
-      setError(errorMessage);
+      setError(getErrorMessage(err, "Error al crear producto"));
     } finally {
       setLoading(false);
     }
