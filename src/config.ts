@@ -15,6 +15,9 @@ export const cognitoConfig = {
   redirectUri,
   authorizationEndpoint: `${authEndpoint}/oauth2/authorize`,
   tokenEndpoint: `${authEndpoint}/oauth2/token`,
+  logoutEndpoint: `${authEndpoint}/logout`,
+  // Debe coincidir con una "Allowed sign-out URL" del app client
+  logoutUri: window.location.origin,
 };
 
 export const apiConfig = {

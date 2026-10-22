@@ -106,6 +106,16 @@ class AuthService {
   }
 
   logout(): void {
+    this.clearSession();
+    // Sin esto la cookie de sesión del Hosted UI sigue viva y el próximo login entra con el mismo usuario
+    const params = new URLSearchParams({
+      client_id: cognitoConfig.clientId,
+      logout_uri: cognitoConfig.logoutUri,
+    });
+    window.location.href = `${cognitoConfig.logoutEndpoint}?${params.toString()}`;
+  }
+
+  clearSession(): void {
     localStorage.removeItem("access_token");
     localStorage.removeItem("id_token");
     localStorage.removeItem("refresh_token");
@@ -185,7 +195,7 @@ class AuthService {
 
       return data.access_token;
     } catch (err) {
-      this.logout();
+      this.clearSession();
       throw err;
     }
   }
