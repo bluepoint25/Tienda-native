@@ -60,4 +60,23 @@ export const productAPI = {
     api.patch<Product>(`/api/v1/productos/${id}/stock?quantity=${quantity}`),
 };
 
+export type TipoEvento = "PROCESADO" | "ALERTA" | "REINTENTO" | "DLQ";
+
+export interface RegistroEvento {
+  fecha: string;
+  tipo: TipoEvento;
+  evento: string;
+  producto: string;
+  detalle: string;
+}
+
+export interface EventosResponse {
+  totales: Record<TipoEvento, number>;
+  registros: RegistroEvento[];
+}
+
+export const eventAPI = {
+  getAll: () => api.get<EventosResponse>("/api/v1/eventos"),
+};
+
 export default api;

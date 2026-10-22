@@ -4,13 +4,14 @@ import Login from "./components/Login";
 import OAuthCallback from "./components/OAuthCallback";
 import ProductList from "./components/ProductList";
 import ProductForm from "./components/ProductForm";
+import EventPanel from "./components/EventPanel";
 import { authService } from "./services/authService";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     authService.isAuthenticated()
   );
-  const [activeTab, setActiveTab] = useState<"list" | "create">("list");
+  const [activeTab, setActiveTab] = useState<"list" | "create" | "events">("list");
   const [username, setUsername] = useState(
     authService.getCurrentUser()?.username || ""
   );
@@ -52,6 +53,12 @@ function App() {
             >
               ➕ Nuevo Producto
             </button>
+            <button
+              className={`tab ${activeTab === "events" ? "active" : ""}`}
+              onClick={() => setActiveTab("events")}
+            >
+              🔔 Eventos
+            </button>
           </nav>
           <div className="user-section">
             <span className="username">👤 {username}</span>
@@ -65,6 +72,7 @@ function App() {
       <main className="app-main">
         {activeTab === "list" && <ProductList />}
         {activeTab === "create" && <ProductForm onSuccess={() => setActiveTab("list")} />}
+        {activeTab === "events" && <EventPanel />}
       </main>
 
       <footer className="app-footer">
