@@ -22,4 +22,6 @@ export const cognitoConfig = {
 
 export const apiConfig = {
   baseURL: import.meta.env.VITE_API_BASE_URL || "https://716y9y943d.execute-api.us-east-1.amazonaws.com/dev",
+  // ms-mensajeria: eventos y administración de RabbitMQ
+  mensajeriaURL: import.meta.env.VITE_MENSAJERIA_URL || "http://localhost:8081",
 };
