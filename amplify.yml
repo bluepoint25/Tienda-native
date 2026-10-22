@@ -1,3 +1,5 @@
+# Build de Amplify. Las variables VITE_* (Cognito, API Gateway) NO van aquí:
+# las define Terraform en la rama de Amplify (módulo amplify de tienda-native-infra).
 version: 1
 frontend:
   phases:
@@ -14,11 +16,3 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-environmentVariables:
-    - name: VITE_COGNITO_USER_POOL_ID
-      value: us-east-1_SOtYxhxql
-    - name: VITE_COGNITO_CLIENT_ID
-      value: 788cde09j5e6579moocbnndub5
-    - name: VITE_API_BASE_URL
-      value: https://716y9y943d.execute-api.us-east-1.amazonaws.com/dev
-      
